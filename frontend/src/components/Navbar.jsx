@@ -4,8 +4,16 @@ import { ShopContext  } from '../context/ShopContext'
 import { assets } from '../assets/assets'
 
 const Navbar = () => {
-    const {setShowSearch, getCartCount} = useContext(ShopContext)
+    const {setShowSearch, getCartCount, navigate, token, setToken, setCartItems} = useContext(ShopContext)
     const [visible , setVisible] = useState(false)
+
+    const logout = () => {
+        navigate('/login')
+        localStorage.removeItem('token')
+        setToken('')
+        setCartItems({})
+    }
+
   return (
     <div className='flex items-center justify-between py-5 font-medium'>
 
@@ -37,15 +45,19 @@ const Navbar = () => {
             <img onClick={()=>setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt='search icon'/>
             
             <div className='group relative'>
-                <Link to='/login'><img src={assets.profile_icon} className='w-5 cursor-pointer' alt='profile icon' /></Link>
-                <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                    <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-salt-100 text-gray-600 rounded'>
-                        <p className='cursor-pointer hover:text-black'>My Profile</p>
-                        <p className='cursor-pointer hover:text-black'> Orders</p>
-                        <p className='cursor-pointer hover:text-black'>Logout</p>
-                    </div>
+                <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt='profile icon' />
+                {/* Dropdown menu of profile logo */}
 
-                </div>
+                { token &&
+                
+                <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4 '>
+                        <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-salt-100 text-gray-600 rounded'>
+                            <p className='cursor-pointer hover:text-black'>My Profile</p>
+                            <p onClick={()=> navigate('/orders')} className='cursor-pointer hover:text-black'> Orders</p>
+                            <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
+                        </div>
+
+                </div>}
             </div>
 {/* cart and its count */}
             <Link to='/cart' className='relative'>
@@ -54,7 +66,8 @@ const Navbar = () => {
             </Link>
 
             <img onClick={()=>setVisible(true)} src='https://res.cloudinary.com/dc5154n7n/image/upload/v1760176533/menu_icon_b48sg3.png' className='w-5 cursor-pointer sm:hidden' alt='menu icon' />
-                
+        </div>
+
 {/* sidebar menu for mobile screen  */}
             <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${visible?'w-full' :'w-0'}`}>
                 <div className='flex flex-col text-gray-600'>
@@ -72,7 +85,7 @@ const Navbar = () => {
             </div>
 
 
-        </div>
+        
 
         
     </div>

@@ -4,15 +4,89 @@ import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast } from 'react-toastify';
+
 
 const PlaceOrder = () => {
 
   const [method , setMethod] = useState('cod');
-  const navigate = useNavigate(ShopContext)
+  const {navigate, backendUrl, token, cartItems,getCartAmount,  setCartItems, deliver_fee, products} = useContext(ShopContext)
+
+  const [formData, setFormData] = useState({
+    firstName:"",
+    lastName:"",
+    email:"",
+    street:"",
+    city:"",
+    state:"",
+    zipcode:"",
+    country:"",
+    phone:"",
+  })
+
+  const onChangehandler = (event) => {
+    const name = event.target.name
+    const value= event.target.value
+
+    setFormData(data => ({...data,[name]:value}))
+  }
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault()
+
+    try {
+
+      let orderItems = []
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0 ) {
+            const itemInfo = structuredClone(products.find(products=> products._id===items))
+            if (itemInfo) {
+              itemInfo.size = item
+              itemInfo.quantity = cartItems[items][item]
+              orderItems.push(itemInfo)
+            }
+          }
+        }
+      }
+
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + deliver_fee
+      }
+
+      
+      // TO choose Payment Method
+      switch (method) {
+        case 'cod':
+              const response = await axios.post(backendUrl + '/api/order/place', orderData, {headers:{token}})
+              
+              if (response.data.success) {
+                setCartItems({})
+                navigate('/orders')
+              }
+              else {
+                toast.error(response.data.message)
+              }
+          break;
+      
+        default:
+          break;
+      }
+      
+      
+    } catch (error) {
+      console.log("Error placing order:", error);
+      toast.error(error.message)
+    }
+  }
+
 
 
   return (
-    <div className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
+    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
 
 {/* -------------------- Left side  -------------------- */}
       <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
@@ -21,20 +95,20 @@ const PlaceOrder = () => {
           <Title text1={'DELIVERY'} text2={' INFORMATION'}/>
         </div>
         <div className='flex gap-3'>
-          <input type='text' placeholder='First Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
-          <input type='text' placeholder='Last Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='firstName' value={formData.firstName} type='text' placeholder='First Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='lastName' value={formData.lastName} type='text' placeholder='Last Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
         </div>
-          <input type='email' placeholder='Email Address' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
-          <input type='text' placeholder='Street' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='email' value={formData.email} type='email' placeholder='Email Address' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='street' value={formData.street} type='text' placeholder='Street' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
         <div className='flex gap-3'>
-          <input type='text' placeholder='City' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
-          <input type='text' placeholder='State' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='city' value={formData.city} type='text' placeholder='City' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='state' value={formData.state} type='text' placeholder='State' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
         </div>
         <div className='flex gap-3'>
-          <input type='Number' placeholder='Zip COde' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
-          <input type='text' placeholder='Country' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='zipcode' value={formData.zipcode} type='Number' placeholder='Zip COde' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+          <input required onChange={onChangehandler} name='country' value={formData.country} type='text' placeholder='Country' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
         </div>
-        <input type='Number' placeholder='Contact Number' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
+        <input required onChange={onChangehandler} name='phone' value={formData.phone} type='Number' placeholder='Contact Number' className='border border-gray-300 rounded py-1.5 px-3.5 w-full'/>
       </div>
 
 {/* -------------------- Right side  -------------------- */}
@@ -66,11 +140,11 @@ const PlaceOrder = () => {
           </div>
 
           <div className='w-full text-end mt-8'>
-            <button onClick={()=>navigate('/Orders')} className='bg-black text-white px-16 py-3 text-sm'>PLACE ORDER</button>
+            <button type='submit' className='bg-black text-white px-16 py-3 text-sm'>PLACE ORDER</button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   )
 }
 

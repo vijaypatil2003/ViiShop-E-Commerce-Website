@@ -5,7 +5,7 @@ import Orders from './pages/Orders'
 import List from './pages/list'
 import Navbar from './component/Navbar'
 import Sidebar from './component/Sidebar'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate  } from 'react-router-dom'
 import Login from './component/Login'
 import { ToastContainer } from 'react-toastify';
 
@@ -33,6 +33,7 @@ function App() {
             <Sidebar/>
             <div className='w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-gray-600 text-base'>
               <Routes>
+                <Route path="/" element={<Navigate to="/list" />} />
                 <Route path='/add' element={<Add token={token} />}/>
                 <Route path='/list' element={<List token={token} />}/>
                 <Route path='/orders' element={<Orders token={token} />}/>

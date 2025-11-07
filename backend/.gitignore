@@ -13,7 +13,11 @@ dist-ssr
 *.local
 
 # Environment files
+node_modules/
 .env
+*/.env
+backend/config/dotenv
+
 
 # Editor directories and files
 .vscode/*

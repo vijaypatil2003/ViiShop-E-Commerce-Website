@@ -17,7 +17,7 @@ const Navbar = () => {
   return (
     <div className='flex items-center justify-between py-5 font-medium'>
 
-        <Link to='/'><img src='https://res.cloudinary.com/dc5154n7n/image/upload/v1760176532/logo_faob54.png' className='w-25' alt='forever logo' /></Link>
+        <Link to='/'><img src='https://res.cloudinary.com/dc5154n7n/image/upload/v1762509626/Screenshot_2025-11-07_152647_vioso6.png' className='w-30' alt='forever logo' /></Link>
 {/* navbar tags home contact etc */}
         <ul className='hidden sm:flex fap-5 text-sm text-gray-700 gap-5'>
 
